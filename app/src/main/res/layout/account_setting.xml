@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Username"
+        android:padding="10dp"
+        android:textSize="30sp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/divider"
+            android:scaleY="2"
+            android:layout_gravity="center"
+            android:scaleX="1"/>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_centerInParent="true"
+            android:layout_margin="10dp"
+            android:layout_alignParentLeft="true"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/crating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_margin="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_centerInParent="true"
+            android:layout_margin="10dp"
+            android:layout_alignParentLeft="true"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/erating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_margin="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_centerInParent="true"
+            android:layout_margin="10dp"
+            android:layout_alignParentLeft="true"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/completedTask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_margin="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_centerInParent="true"
+            android:layout_margin="10dp"
+            android:layout_alignParentLeft="true"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/ptask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_margin="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_centerInParent="true"
+            android:layout_margin="10dp"
+            android:layout_alignParentLeft="true"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/debt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer Rating"
+            android:layout_margin="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/editInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Information"/>
+
+</LinearLayout>

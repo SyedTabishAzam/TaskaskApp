@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/login"
+        android:onClick="login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login Screen"/>
+
+    <Button
+        android:id="@+id/newtask"
+        android:onClick="newtask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Task Screen"/>
+
+    <Button
+        android:id="@+id/posted"
+        android:onClick="posted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PostedTask Screen"/>
+    <Button
+        android:id="@+id/accepted"
+        android:onClick="accepted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accepted Task Screen"/>
+    <Button
+        android:id="@+id/home"
+        android:onClick="home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home Screen"/>
+    <Button
+        android:id="@+id/register"
+        android:onClick="register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register Screen"/>
+</LinearLayout>

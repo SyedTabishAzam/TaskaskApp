@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Taskask</string>
+    <string name="title_activity_view_task">viewTask</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
