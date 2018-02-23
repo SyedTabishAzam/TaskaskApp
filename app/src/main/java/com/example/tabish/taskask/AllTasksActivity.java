@@ -9,18 +9,31 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.ActivityCompat;
+import android.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -29,6 +42,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tabish.taskask.R;
+import com.google.android.gms.maps.model.LatLng;
+
+import static android.view.Gravity.START;
 
 public class AllTasksActivity extends ListActivity {
 
@@ -37,7 +53,7 @@ public class AllTasksActivity extends ListActivity {
 
     // Creating JSON Parser object
     JSONParser jParser = new JSONParser();
-
+    LocationManager mLocationManager;
 
 
     // url to get all products list
@@ -70,22 +86,58 @@ public class AllTasksActivity extends ListActivity {
     // tasks JSONArray
     JSONArray tasks = null;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    SessionManager session;
     //button for creating task
-
+    Handler myHandle;
     Button createTask;
+    Button filter;
+    boolean re = true;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_products);
         //getLoaderManager().initLoader(0,null,this);
 
+        session = new SessionManager(getApplicationContext());
+        if(!session.isLoggedIn())
+        {
+            session.checkLogin();
+            re = false;
+            this.finish();
+        }
 
+
+
+        HashMap<String, String> user = session.getUserDetails();
+        String username = user.get(SessionManager.KEY_USERNAME);
+        myHandle = new Handler();
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        try
+        {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new android.location.LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    Log.e("ListenToChange","try");
+                    new UpdateLocation().execute((session.getUserDetails().get(SessionManager.KEY_USERNAME)),Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+                }
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {            }
+                @Override
+                public void onProviderEnabled(String provider) {            }
+                @Override
+                public void onProviderDisabled(String provider) {            }
+            });
+        }
+        catch (SecurityException e)
+        {
+
+        }
 
         // Loading products in Background Thread
         new LoadAllTasks().execute();
 
         createTask = (Button) findViewById(R.id.createButton);
-
+        filter = (Button) findViewById(R.id.filterButton);
         createTask.setOnClickListener(new View.OnClickListener(){
               @Override
               public void onClick(View view) {
@@ -95,6 +147,26 @@ public class AllTasksActivity extends ListActivity {
 
         }
         });
+
+        ImageView userOptions = (ImageView) findViewById(R.id.userOption);
+        userOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(getApplicationContext(),UserOptions.class);
+                startActivity(i);
+
+            }
+        });
+        filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.e("AllTask","Registering to filter");
+            }
+        });
+
+
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
@@ -107,25 +179,26 @@ public class AllTasksActivity extends ListActivity {
 
     };
 
+
     private void refreshContent(){
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                //recreate();.
+
                 new LoadAllTasks().execute();
                 mSwipeRefreshLayout.setRefreshing(false);
-                Log.e("asdd","try");
             };
         },0);
     }
 
+
+
     private void displayTasks(ArrayList<Tasks> tasklist)
-    {
+    {   TextView noData = (TextView) findViewById(R.id.noData);
         ListView listview = (ListView) findViewById(android.R.id.list);
        if (tasklist.size()>0)
        {
-
-
+        noData.setVisibility(View.GONE);
         TasksAdapter taskadapter = new TasksAdapter(this,tasklist);
         listview.setAdapter(taskadapter);
         listview.setOnItemClickListener(new OnItemClickListener() {
@@ -135,13 +208,14 @@ public class AllTasksActivity extends ListActivity {
                 Tasks entry = (Tasks) parent.getItemAtPosition(position);
                 Intent viewTask = new Intent(getApplicationContext(),ViewTask.class);
                 viewTask.putExtra("TaskID",entry.getID());
+                viewTask.putExtra("nature","ProposableTasks");
                 startActivityForResult(viewTask,4);
 
             }
         });
        }else
        {
-           TextView noData = (TextView) findViewById(R.id.noData);
+
            noData.setVisibility(View.VISIBLE);
        }
     }
@@ -159,11 +233,7 @@ public class AllTasksActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            pDialog = new ProgressDialog(AllTasksActivity.this);
-//            pDialog.setMessage("Loading Tasks. Please wait...");
-//            pDialog.setIndeterminate(false);
-//            pDialog.setCancelable(false);
-//            pDialog.show();
+
         }
 
         /**
@@ -241,5 +311,56 @@ public class AllTasksActivity extends ListActivity {
 
         }
 
+    }
+
+    class UpdateLocation extends AsyncTask<String,Void,Boolean>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        protected Boolean doInBackground(String... args)
+        {
+            String urlx = "update_pos.php";
+            List<myDict> params = new ArrayList<myDict>();
+            params.add(new myDict("Username",args[0]));
+            params.add(new myDict("Latitude",args[1]));
+            params.add(new myDict("Longitude",args[2]));
+            JSONObject jobj = jParser.makeHttpRequest(urlx,"POST",params);
+            int success = 0;
+            try
+            {
+
+                success = jobj.getInt("success");
+            }
+            catch (JSONException e)
+            {
+                Log.e("Add Latlong",e.toString());
+            }
+
+            if(success==1)
+            {
+                return Boolean.TRUE;
+
+
+            }
+
+            return Boolean.FALSE;
+        }
+
+        protected void onPostExecute(Boolean success)
+        {
+            if(success==Boolean.TRUE)
+            {
+                Log.e("UpdatePost","Success");
+
+            }
+            else
+            {
+                Log.e("UpdatePost","Failed");
+            }
+        }
     }
 }

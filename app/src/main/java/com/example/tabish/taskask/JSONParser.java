@@ -25,8 +25,9 @@ public class JSONParser {
 
     static InputStream is = null;
     static JSONObject jObj = null;
-    String serverIp = "http://10.20.3.205/taskask/";
-    //String serverIp = "http://192.168.0.103/taskask/";
+    //String serverIp = "http://10.20.3.205/taskask/";
+    String serverIp = "http://192.168.0.104/taskask/";
+
 
     // constructor
     public JSONParser() {
@@ -86,8 +87,9 @@ public class JSONParser {
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
-                Log.e("Url conn",urlConnection.getResponseMessage());
+
                 //In post method, parameters doesnt go in url, but written in output stream rather.
+
                 OutputStream os = urlConnection.getOutputStream();
 
 
@@ -101,6 +103,7 @@ public class JSONParser {
                 int responseCode=urlConnection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     jsonResponse = readFromStream(urlConnection.getInputStream());
+
                 }
                 else {
                     jsonResponse="";
@@ -126,9 +129,6 @@ public class JSONParser {
                 catch (IOException e)
                 {
                     Log.e("Url connection",e.toString());
-
-
-
                 }
                 inputStream = urlConnection.getInputStream();
 

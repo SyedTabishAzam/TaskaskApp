@@ -5,7 +5,7 @@ package com.example.tabish.taskask;
  */
 
 public class Tasks {
-    private String tag_, user_,fee_,urgency_,critical_,UrgencyColor_,CrticialColor_,time_,id_,desc_;
+    private String tag_, user_,username_,fee_,urgency_,critical_,UrgencyColor_,CrticialColor_,time_,id_,desc_,accepteByName,acceptedByUser;
     public Tasks(String tag,String user,String fee,String urgency, String critical,String urgencycolor,String time,String id)
     {
         id_=id;
@@ -19,7 +19,7 @@ public class Tasks {
         time_ = time;
     }
 
-    public Tasks(String tag,String user,String fee,String urgency, String critical,String urgencycolor,String time,String id,String desc)
+    public Tasks(String tag,String user,String fee,String urgency, String critical,String urgencycolor,String time,String id,String desc,String username)
     {
         id_=id;
         tag_=tag;
@@ -31,6 +31,27 @@ public class Tasks {
         CrticialColor_ = "Black";
         time_ = time;
         desc_=desc;
+        username_ = username;
+    }
+
+    public String getAccepteByName() {
+        return accepteByName;
+    }
+
+    public void setAccepteByName(String accepteByName) {
+        this.accepteByName = accepteByName;
+    }
+
+    public String getAcceptedByUser() {
+        return acceptedByUser;
+    }
+
+    public void setAcceptedByUser(String acceptedByUser) {
+        this.acceptedByUser = acceptedByUser;
+    }
+
+    public String getUsername() {
+        return username_;
     }
 
     public String getDesc() {

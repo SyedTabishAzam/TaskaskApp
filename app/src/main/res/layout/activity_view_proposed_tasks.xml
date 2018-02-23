@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="vertical">
+    <ScrollView
+        android:id="@+id/outerScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_launcher_round"/>
+
+                <TextView
+                    android:id="@+id/fullname"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:text="Username"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="15dp"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src = "@drawable/divider"
+                android:scaleX="1"
+                android:scaleY="2"
+                android:scaleType="centerCrop"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="28dp"
+                android:paddingRight="28dp"
+                android:paddingTop="15dp"
+                android:scrollbars="vertical"
+                android:weightSum="1">
+
+                <TextView
+                    android:id="@+id/desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gray"
+                    android:gravity="top|left"
+                    android:hint="Description"
+                    android:inputType="textMultiLine"
+
+                    android:maxLines="10"
+                    android:minLines="1"
+                    android:padding="10dp"
+                    android:scrollbars="vertical" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Time Limit: 10 mins"
+                    android:textSize="24sp"
+                    android:padding="10dp"
+                    android:textAlignment="center"/>
+            </LinearLayout>
+
+            <ListView
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/createChecklist"
+
+                >
+
+
+            </ListView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="28dp"
+                android:paddingRight="28dp"
+                android:paddingTop="15dp"
+                android:scrollbars="vertical"
+                android:weightSum="1">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src = "@drawable/divider"
+                    android:scaleX="1"
+                    android:scaleY="2"
+                    android:scaleType="centerCrop"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="10dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="10dp">
+
+                        <TextView
+                            android:id="@+id/ulevel"
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:text="Urgency Level"
+
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/urgencyTell"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_gravity="end"
+                            android:layout_marginLeft="40dp"
+                            android:text="Ulevel"/>
+
+
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="10dp">
+
+                        <TextView
+                            android:id="@+id/clevel"
+                            android:layout_width="130dp"
+
+                            android:layout_height="wrap_content"
+                            android:text="Critical Level"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/criticalTell"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_gravity="end"
+                            android:layout_marginLeft="40dp"
+                            android:spinnerMode="dropdown"
+                            android:text="Clevel"/>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="10dp">
+
+                        <TextView
+                            android:id="@+id/fees"
+                            android:layout_width="130dp"
+
+                            android:layout_height="wrap_content"
+                            android:text="Fee"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/feeAtt"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_gravity="end"
+                            android:layout_marginLeft="40dp"
+
+                            android:text="Fee attached"/>
+
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/total"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:paddingTop="15dp"
+                        android:text="Total Amount"
+                        android:textSize="25sp" />
+
+                    <Button
+                        android:id="@+id/propose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/post_button"
+                        android:padding="10dp"
+                        android:text="Cancel Proposal"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
@@ -245,7 +246,8 @@ public class Register extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
+            LinearLayout loadingPane = (LinearLayout) findViewById(R.id.loadingPanel);
+            loadingPane.setVisibility(View.VISIBLE);
         }
 
         /**
@@ -304,7 +306,8 @@ public class Register extends Activity {
          * **/
         protected void onPostExecute(String file_url) {
             // dismiss the dialog once done
-
+            LinearLayout loadingPane = (LinearLayout) findViewById(R.id.loadingPanel);
+            loadingPane.setVisibility(View.GONE);
         }
 
     }

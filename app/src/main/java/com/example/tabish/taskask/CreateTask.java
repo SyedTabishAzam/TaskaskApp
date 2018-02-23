@@ -40,8 +40,8 @@ public class CreateTask extends AppCompatActivity {
     JSONParser jsonParser = new JSONParser();
     EditText lanlonStr = null;
 
-
-
+    SessionManager session;
+    Double globalRate;
     // url to create new task
     //Todo: Shift url to json parser class
     private static String url_create_task = "create_task.php";
@@ -57,8 +57,8 @@ public class CreateTask extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-
+        session = new SessionManager(getApplicationContext());
+        new getRate().execute();
 
 
         addSpinnerItems();
@@ -137,7 +137,7 @@ public class CreateTask extends AppCompatActivity {
                 if(value.length()!=0)
                 {
 
-                    total.setText(Integer.toString(Integer.parseInt(value)*3));
+                    total.setText(Double.toString(Double.parseDouble(value)*globalRate));
                 }
                 else
                 {
@@ -189,14 +189,14 @@ public class CreateTask extends AppCompatActivity {
                 Spinner criticalLevel = (Spinner)findViewById(R.id.criticalSpinner);
                 String _clevel = criticalLevel.getSelectedItem().toString();
 
-                String _pby = "Tabish";
+                String _pby = session.getUserDetails().get("username");
                 String _tlimit = "10";
 
                 //TODO: Get rate from database
-                int rate = 3;
-                String _rate = "3";
-                int amount = _fee * rate;
-                String _amount = Integer.toString(amount);
+                Double rate = globalRate;
+                String _rate = Double.toString(rate);
+                Double amount = _fee * rate;
+                String _amount = Double.toString(amount);
 
                 //TODO: Clean CreateTask
 
@@ -277,7 +277,7 @@ public class CreateTask extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                this.finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -397,6 +397,67 @@ public class CreateTask extends AppCompatActivity {
             {
                 Toast.makeText(getApplicationContext(), "Server Error.",Toast.LENGTH_SHORT).show();
             }
+        }
+
+    }
+
+    class getRate extends AsyncTask<String, Void, Double> {
+
+
+
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+
+        protected Double doInBackground(String... args) {
+            Double rate = 1.0;
+
+            // Building Parameters
+            List<myDict> params = new ArrayList<myDict>();
+            params.add(new myDict("true", "true"));
+
+
+            //Passing built arguments to JSON parser class//
+            String url_get_rate = "get_rate.php";
+            JSONObject json = jsonParser.makeHttpRequest(url_get_rate,"GET", params);
+
+            // check log cat fro response
+            Log.d("Create Response ", json.toString());
+
+            // check for success tag - show success message if task created, otherwise show error
+            try {
+
+                int success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    // closing this screen
+                    rate = json.getDouble("rate");
+
+                } else {
+                    rate = 1.0;
+
+
+                }
+            } catch (JSONException e) {
+                rate = 1.0;
+                e.printStackTrace();
+            }
+
+            return rate;
+        }
+
+        /**
+         * After completing background task Dismiss the progress dialog
+         * **/
+        protected void onPostExecute(Double rate) {
+            // dismiss the dialog once done
+            String rateStr = Double.toString(rate);
+            Toast.makeText(getApplicationContext(), "Current rate: " + rateStr,Toast.LENGTH_SHORT).show();
+            globalRate = rate;
         }
 
     }

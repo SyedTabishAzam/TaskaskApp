@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tabish.taskask">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!--
@@ -31,16 +32,14 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAxxKwIJlDi-ZyOgbgiAiD5RYsum07w5z4" />
 
-        <activity android:name=".MainScreenActivity">
+        <activity android:name=".MainScreenActivity" />
+        <activity android:name=".AllTasksActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".AllTasksActivity"
-            android:label="All Tasks" />
         <activity
             android:name=".CreateTask"
             android:label="Create Task"
@@ -64,7 +63,54 @@
             android:name=".GotoDialogue"
             android:theme="@android:style/Theme.Holo.Light.Dialog" />
         <activity android:name=".GotoMap" />
-        <activity android:name=".ViewCheckMap" android:theme="@android:style/Theme.Holo.Dialog"></activity>
+        <activity
+            android:name=".ViewCheckMap"
+            android:theme="@android:style/Theme.Holo.Dialog" />
+        <activity
+            android:name=".ViewUser"
+            android:parentActivityName=".ViewTask">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ViewTask" />
+        </activity>
+        <activity android:name=".TaskComplete" />
+        <activity
+            android:name=".UserOptions"
+            android:label="@string/title_activity_user_options"
+            android:parentActivityName=".AllTasksActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.tabish.taskask.AllTasksActivity" />
+        </activity>
+        <activity
+            android:name=".ViewSelf"
+            android:label="ViewSelf"
+            android:parentActivityName=".UserOptions">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.tabish.taskask.UserOptions" />
+        </activity>
+        <activity android:name=".ViewProposedTasks" />
+        <activity
+            android:name=".ViewAcceptedTasks"
+            android:label="Accepted Tasks"
+            android:parentActivityName=".UserOptions">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.tabish.taskask.UserOptions" />
+        </activity>
+        <activity
+            android:name=".ViewProposals"
+            android:label="View Proposals"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.tabish.taskask.UserOptions" />
+        </activity>
+        <activity android:name=".MyPostedTasks">
+
+
+        </activity>
     </application>
 
 </manifest>
