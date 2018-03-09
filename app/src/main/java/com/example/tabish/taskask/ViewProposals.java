@@ -19,6 +19,7 @@ public class ViewProposals extends AppCompatActivity {
     JSONParser jsonParser;
     SessionManager session;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    String taskId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +28,7 @@ public class ViewProposals extends AppCompatActivity {
         ArrayList<UserDetail> users = new ArrayList<UserDetail>();
         //(String fullname,String username, String number, float cRating, float eRating, String address, String cnic,int postedTasks,int completedTasks,Double latitude, Double longitude)
 
-        String taskId = getIntent().getStringExtra("TaskID");
+        taskId = getIntent().getStringExtra("TaskID");
         new LoadProposers().execute(taskId);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
@@ -68,7 +69,7 @@ public class ViewProposals extends AppCompatActivity {
     {
 
         ListView lv = (ListView) findViewById(android.R.id.list);
-        ProposalAdapter ua = new ProposalAdapter(this,users);
+        ProposalAdapter ua = new ProposalAdapter(this,users,taskId);
         lv.setAdapter(ua);
     }
 

@@ -101,16 +101,13 @@
         </activity>
         <activity
             android:name=".ViewProposals"
-            android:label="View Proposals"
-            >
+            android:label="View Proposals">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.tabish.taskask.UserOptions" />
         </activity>
-        <activity android:name=".MyPostedTasks">
-
-
-        </activity>
+        <activity android:name=".MyPostedTasks"></activity>
+        <activity android:name=".Sprint"></activity>
     </application>
 
 </manifest>

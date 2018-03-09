@@ -3,6 +3,7 @@ package com.example.tabish.taskask;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +13,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Tabish on 18-Feb-18.
@@ -22,11 +28,14 @@ import java.util.ArrayList;
 public class ProposalAdapter extends ArrayAdapter<UserDetail>  {
 
     Context mContext;
-
-    public ProposalAdapter(Activity context, ArrayList<UserDetail> checklist) {
+    SessionManager session;
+    String taskID;
+    public ProposalAdapter(Activity context, ArrayList<UserDetail> checklist,String _taskId) {
 
         super(context, 0, checklist);
         mContext = context;
+        session = new SessionManager(mContext);
+        taskID = _taskId;
     }
 
     @Override
@@ -81,7 +90,12 @@ public class ProposalAdapter extends ArrayAdapter<UserDetail>  {
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("Accepted",currentProposer.getUsername());
+
+                session.createSprintSession(taskID,currentProposer.getUsername());
+                String status = "InProgress";
+                String proposer = currentProposer.getUsername();
+                Log.e("whoPropo",proposer);
+                new ChangeTaskStatus().execute(taskID,proposer,status);
             }
         });
 
@@ -90,6 +104,72 @@ public class ProposalAdapter extends ArrayAdapter<UserDetail>  {
         rating.setRating(eRatingBarFloat);
 
         return listItemView;
+    }
+
+    class ChangeTaskStatus extends AsyncTask<String,Void,Boolean>
+    {
+
+
+        @Override
+        protected Boolean doInBackground(String... args) {
+            String url_update_task = "change_task_to_accept.php";
+            JSONParser jParser = new JSONParser();
+
+            List<myDict> params = new ArrayList<myDict>();
+            params.add(new myDict("idTask",args[0]));   //Get task based on TaskID
+            params.add(new myDict("proposer",args[1]));
+            params.add(new myDict("Status",args[2]));
+            JSONObject json = jParser.makeHttpRequest(url_update_task, "POST", params);
+
+            // Check your log cat for JSON reponse
+            Log.d("Update Taks: ", json.toString());
+            Tasks viewTask = null;
+            ArrayList<myDict> checklistList = new ArrayList<myDict>();
+            try {
+                // Checking for SUCCESS TAG
+                int success = json.getInt("success");
+                if (success == 1)
+                {
+                    return Boolean.TRUE;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return Boolean.FALSE;
+        }
+
+        protected void onPostExecute(Boolean success)
+        {
+            // dismiss the dialog once done
+
+            if(success==Boolean.TRUE)
+            {
+
+                FurtherAction();
+            }
+            else
+            {
+                session.endSprint();
+                Toast.makeText(mContext,"Some error occured.",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    void FurtherAction()
+    {
+        Log.e("Accepted","F.ACTION");
+
+
+        // After logout redirect user to Loing Activity
+        Intent sprintActivity = new Intent(mContext, Sprint.class);
+
+        // Add new Flag to start new Activity
+        sprintActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        // Staring Login Activity
+        mContext.startActivity(sprintActivity);
+
     }
 }
 

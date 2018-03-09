@@ -26,7 +26,7 @@ public class JSONParser {
     static InputStream is = null;
     static JSONObject jObj = null;
     //String serverIp = "http://10.20.3.205/taskask/";
-    String serverIp = "http://192.168.0.104/taskask/";
+    String serverIp = "http://192.168.0.105/taskask/";
 
 
     // constructor

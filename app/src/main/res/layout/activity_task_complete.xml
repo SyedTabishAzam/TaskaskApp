@@ -31,6 +31,7 @@
         android:textAlignment="center"/>
 
     <RatingBar
+        android:id="@+id/rateUser"
         android:layout_margin="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,6 +49,7 @@
             android:src="@android:mipmap/sym_def_app_icon"/>
 
         <TextView
+            android:id="@+id/displayName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Username"

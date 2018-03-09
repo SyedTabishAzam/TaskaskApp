@@ -92,6 +92,7 @@ public class AllTasksActivity extends ListActivity {
     Button createTask;
     Button filter;
     boolean re = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,14 +100,24 @@ public class AllTasksActivity extends ListActivity {
         //getLoaderManager().initLoader(0,null,this);
 
         session = new SessionManager(getApplicationContext());
+        //session.ClearAll();
+        session.checkLogin();
+
         if(!session.isLoggedIn())
         {
-            session.checkLogin();
+
             re = false;
             this.finish();
         }
 
+        session.checkSprint();
+        if(session.isInSprint())
+        {
+            this.finish();
+        }
 
+        TextView usernamePlaceholder = (TextView) findViewById(R.id.usernamePlaceholder);
+        usernamePlaceholder.setText(session.getUserDetails().get("username"));
 
         HashMap<String, String> user = session.getUserDetails();
         String username = user.get(SessionManager.KEY_USERNAME);

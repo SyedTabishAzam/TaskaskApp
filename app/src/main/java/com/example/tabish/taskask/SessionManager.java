@@ -26,8 +26,18 @@ public class SessionManager {
     // All Shared Preferences Keys
     private static final String IS_LOGIN = "IsLoggedIn";
 
+
+
+    private static final String IS_SPRINT = "IsInSprint";
+
     // User name (make variable public to access from outside)
     public static final String KEY_FULLNAME = "fullname";
+
+    // User name (make variable public to access from outside)
+    public static final String KEY_TASKID = "taskID";
+
+    // User name (make variable public to access from outside)
+    public static final String KEY_OTHERUSER = "otherUserId";
 
     // Email address (make variable public to access from outside)
     public static final String KEY_USERNAME = "username";
@@ -56,6 +66,25 @@ public class SessionManager {
         editor.commit();
     }
 
+    public void createSprintSession(String taskID, String userName){
+
+        // Storing login value as TRUE
+        editor.putBoolean(IS_SPRINT, true);
+
+        // Storing name in pref
+        editor.putString(KEY_TASKID, taskID);
+
+        // Storing email in pref
+        editor.putString(KEY_OTHERUSER, userName);
+
+        // commit changes
+        editor.commit();
+        // After logout redirect user to Loing Activity
+
+
+
+    }
+
     /**
      * Check login method wil check user login status
      * If false it will redirect user to login page
@@ -63,6 +92,7 @@ public class SessionManager {
      * */
     public void checkLogin(){
         // Check login status
+
         if(!this.isLoggedIn()){
             // user is not logged in redirect him to Login Activity
 
@@ -75,9 +105,31 @@ public class SessionManager {
 
             // Staring Login Activity
             _context.startActivity(i);
+
+        }
+
+
+    }
+
+    public void checkSprint(){
+        // Check login status
+        if(this.isInSprint()){
+            // user is is sprint - redirect him to Sprint Activity
+
+            Intent i = new Intent(_context, Sprint.class);
+            // Closing all the Activities
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            // Add new Flag to start new Activity
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            // Staring Sprint Activity
+            _context.startActivity(i);
         }
 
     }
+
+
 
 
 
@@ -94,6 +146,18 @@ public class SessionManager {
 
         // return user
         return user;
+    }
+
+    public HashMap<String, String> getSprintDetail(){
+        HashMap<String, String> sprint = new HashMap<String, String>();
+        // On going task id
+        sprint.put(KEY_TASKID, pref.getString(KEY_TASKID, null));
+
+        // Accepted User Id
+        sprint.put(KEY_OTHERUSER, pref.getString(KEY_OTHERUSER, null));
+
+        // return user
+        return sprint;
     }
 
     /**
@@ -116,11 +180,43 @@ public class SessionManager {
         _context.startActivity(i);
     }
 
+
+
+    public void endSprint(){
+
+        // Storing login value as TRUE
+        editor.putBoolean(IS_SPRINT, false);
+
+        // Storing name in pref
+        editor.putString(KEY_TASKID, "");
+
+        // Storing email in pref
+        editor.putString(KEY_OTHERUSER,"");
+
+        // commit changes
+        editor.commit();
+        // After logout redirect user to Loing Activity
+
+
+
+    }
+
+    public void ClearAll()
+    {
+        editor.clear();
+        editor.commit();
+        logoutUser();
+        endSprint();
+    }
+
     /**
      * Quick check for login
      * **/
     // Get Login State
     public boolean isLoggedIn(){
         return pref.getBoolean(IS_LOGIN, false);
+    }
+    public boolean isInSprint(){
+        return pref.getBoolean(IS_SPRINT, false);
     }
 }
