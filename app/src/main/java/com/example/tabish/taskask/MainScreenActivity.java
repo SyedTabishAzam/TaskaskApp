@@ -37,7 +37,12 @@ public class MainScreenActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         session = new SessionManager(getApplicationContext());
-
+        if(session.getNewUser())
+        {
+            Intent welcomeUser = new Intent(this,WelcomeUser.class);
+            startActivity(welcomeUser);
+            this.finish();
+        }
         // Buttons
         registerBtn = (Button) findViewById(R.id.registerBtn);
         loginBtn = (Button) findViewById(R.id.login);

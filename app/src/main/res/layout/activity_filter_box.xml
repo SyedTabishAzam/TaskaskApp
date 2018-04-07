@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/Vicinity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="7dp"
+        android:text="Vicinity : " />
+
+    <SeekBar
+        android:id="@+id/vicinityBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:min="1"
+        android:max="10000"
+        android:progress="1000"
+        android:layout_below="@+id/Vicinity"
+        android:layout_marginTop="17dp" />
+
+    <TextView
+        android:id="@+id/Fee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/vicinityBar"
+        android:layout_marginTop="16dp"
+        android:text="Minimum Fee : " />
+
+    <SeekBar
+        android:id="@+id/feeBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:min="1"
+        android:max="1000"
+        android:progress="500"
+        android:layout_below="@+id/Fee"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/updateSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/feeBar"
+        android:padding="10dp"
+        android:textAllCaps="false"
+        android:layout_margin="10dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button2"
+        android:text="Update"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+    <TextView
+        android:id="@+id/mapVicinityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Vicinity : Meters "
+        />
+
+    <SeekBar
+        android:id="@+id/mapVicinityBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="1"
+        android:max="10000"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnNormal"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="Normal View"/>
+
+        <Button
+            android:id="@+id/btnSatellite"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="Satellite View"/>
+
+        <Button
+            android:id="@+id/btnHybrid"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="Hybrid View"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="9">
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    </fragment>
+    <ImageView
+        android:id="@+id/dividerForRef"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/divider"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"/>
+    <ImageView
+        android:id="@+id/fakeMarker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/markerx_moving"
+        android:layout_alignBottom="@id/dividerForRef"
+        android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+    <Button
+        android:id="@+id/btnSelect"
+        android:layout_weight="1"
+        android:background="@drawable/blue"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="Select"/>
+
+
+</LinearLayout>

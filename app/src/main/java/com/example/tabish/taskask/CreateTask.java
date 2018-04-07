@@ -36,7 +36,7 @@ public class CreateTask extends AppCompatActivity {
     // Progress Dialog
     private ProgressDialog pDialog;
 
-
+    private SQLiteDatabaseHandler db;
     JSONParser jsonParser = new JSONParser();
     EditText lanlonStr = null;
 
@@ -53,10 +53,10 @@ public class CreateTask extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_task);
-
+        globalRate = new Double(0);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        db = new SQLiteDatabaseHandler(this);
         session = new SessionManager(getApplicationContext());
         new getRate().execute();
 
@@ -365,7 +365,27 @@ public class CreateTask extends AppCompatActivity {
                     // closing this screen
                     successful = 1;
                     finish();
-                } else {
+                }
+                else if(success==4)
+                {
+                    //SAVETASKTODISK
+
+                    Tasks saveTask = new Tasks();
+
+                    saveTask.setUrgency_(args[0]);
+                    saveTask.setDesc_(args[1]);
+                    saveTask.setFee_(args[2]);
+                    saveTask.setTag_(args[3]);
+                    saveTask.setCritical_(args[4]);
+                    saveTask.setUsername_(args[5]);
+                    saveTask.setTime_(args[6]);
+
+                    db.addTask(saveTask);
+                    successful = 4;
+                    finish();
+
+                }
+                else {
                     successful = 2;
                     Log.e("Create TASK","Nothing Created!");
 
@@ -395,7 +415,12 @@ public class CreateTask extends AppCompatActivity {
             }
             else if(success == 3)
             {
-                Toast.makeText(getApplicationContext(), "Server Error.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "PHP Error.",Toast.LENGTH_SHORT).show();
+            }
+            else if(success == 4)
+            {
+                Toast.makeText(getApplicationContext(), "Task saved locally and will be posted when network is available.",Toast.LENGTH_SHORT).show();
+
             }
         }
 
@@ -427,11 +452,11 @@ public class CreateTask extends AppCompatActivity {
             JSONObject json = jsonParser.makeHttpRequest(url_get_rate,"GET", params);
 
             // check log cat fro response
-            Log.d("Create Response ", json.toString());
+
 
             // check for success tag - show success message if task created, otherwise show error
             try {
-
+                Log.d("Create Response ", json.toString());
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
                     // closing this screen

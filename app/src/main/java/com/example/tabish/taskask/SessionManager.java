@@ -26,7 +26,7 @@ public class SessionManager {
     // All Shared Preferences Keys
     private static final String IS_LOGIN = "IsLoggedIn";
 
-
+    private static final String IS_NEW = "IsNewUser";
 
     private static final String IS_SPRINT = "IsInSprint";
 
@@ -47,6 +47,7 @@ public class SessionManager {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
+
     }
 
     /**
@@ -63,6 +64,13 @@ public class SessionManager {
         editor.putString(KEY_USERNAME, email);
 
         // commit changes
+        editor.commit();
+    }
+
+    public void setNewUser(){
+        // Storing login value as TRUE
+        editor.putBoolean(IS_NEW, false);
+
         editor.commit();
     }
 
@@ -158,6 +166,13 @@ public class SessionManager {
 
         // return user
         return sprint;
+    }
+
+    public boolean getNewUser()
+    {
+        boolean isNew= pref.getBoolean(IS_NEW,true);
+        return isNew;
+
     }
 
     /**

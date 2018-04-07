@@ -11,14 +11,19 @@ import java.io.BufferedWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.json.JSONException;
 import java.net.URLEncoder;
+import java.util.concurrent.TimeoutException;
+
 import org.json.JSONObject;
 
+import android.util.DebugUtils;
 import android.util.Log;
 
 public class JSONParser {
@@ -26,8 +31,8 @@ public class JSONParser {
     static InputStream is = null;
     static JSONObject jObj = null;
     //String serverIp = "http://10.20.3.205/taskask/";
-    String serverIp = "http://192.168.0.105/taskask/";
-
+    String serverIp = "http://192.168.0.108/taskask/";
+    //String serverIp = "http://taskask.azurewebsites.net/taskask/";
 
     // constructor
     public JSONParser() {
@@ -81,13 +86,19 @@ public class JSONParser {
 
 
                 //Self explanatiroy code here
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setReadTimeout(15000);
-                urlConnection.setConnectTimeout(15000);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
+                try {
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setReadTimeout(15000);
+                    urlConnection.setConnectTimeout(15000);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setDoInput(true);
+                    urlConnection.setDoOutput(true);
 
+                }
+                catch (IOException e)
+                {
+                    Log.e("Url connection",e.toString());
+                }
                 //In post method, parameters doesnt go in url, but written in output stream rather.
 
                 OutputStream os = urlConnection.getOutputStream();
@@ -110,6 +121,7 @@ public class JSONParser {
                     Log.e("JSONParser ","POST method! HTTP_OK failed!" + Integer.toString(responseCode));
 
                 }
+                Log.e("Response",Integer.toString(responseCode));
 
 
             }
@@ -147,14 +159,29 @@ public class JSONParser {
 
 
         } catch (UnsupportedEncodingException e) {
-
+            Log.e("GettingHere1",e.toString());
             e.printStackTrace();
 
         } catch (IOException e) {
 
-
             e.printStackTrace();
+            Log.e("GettingHere2",e.toString());
+            String errorInSocket = e.toString();
+            if (errorInSocket.contains("SocketTimeoutException"))
+            {
+                try{
+                    jObj = new JSONObject();
+                    jObj.put("success",4);
+                }
+                catch (JSONException x)
+                {
+                    Log.e("Json exception ","Error saving data to disk! Fatal Error");
+                }
+                return jObj;
+            }
+
         }
+
 
         /*Convert JSON string to JSON object*/
         try {

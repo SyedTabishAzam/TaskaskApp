@@ -124,7 +124,9 @@ public class ViewTask extends AppCompatActivity {
         TextView urgency = (TextView) findViewById(R.id.urgencyTell);
         TextView critical = (TextView) findViewById(R.id.criticalTell);
         TextView total = (TextView) findViewById(R.id.total);
-        String username = currentTask.getUsername();
+
+        String username = currentTask.getPostedByUser();
+
         String uname = session.getUserDetails().get("username");
         boolean myTask = uname.equals(username);
 
@@ -133,7 +135,7 @@ public class ViewTask extends AppCompatActivity {
         urgency.setText(currentTask.getUrgency());
         critical.setText(currentTask.getCritical());
         total.setText(currentTask.getFee());
-
+        String taskStatus = currentTask.getTaskStatus();
         ArrayList<myDict> checkList = pair.getSecond();
         /*if(checkList.size()>0)
         {*/
@@ -179,8 +181,8 @@ public class ViewTask extends AppCompatActivity {
         {
 
         }
-        String taskStatus = "Open";
-        TackleLayoutDisplay(myTask,taskStatus,currentTask.getUser(),currentTask.getUsername());
+
+        TackleLayoutDisplay(myTask,taskStatus,currentTask.getUser(),currentTask.getUsername(),currentTask.getID());
         TackleOptions(myTask);
 
 
@@ -189,19 +191,22 @@ public class ViewTask extends AppCompatActivity {
 
     }
 
-    private void TackleLayoutDisplay(boolean myTask,String tstatus, String nameToDisplay, final String userWhoPosted)
+    private void TackleLayoutDisplay(boolean myTask,String tstatus, String nameToDisplay, final String userWhoPosted,final String  taskID)
     {
         TextView fullname = (TextView) findViewById(R.id.fullname);
-        boolean listenToClick = false;
+        int listenToClick;
+        listenToClick = 0;
 
         if(myTask)
         {
             LinearLayout panel = (LinearLayout) findViewById(R.id.userPanel);
             panel.setGravity(Gravity.END);
             //if its my task and its completed, inProgress, i want to see who completed it - right
-            if(tstatus.equals("Completed") | tstatus.equals("InProgress"));
+            Log.e("Status",tstatus);
+            if(tstatus.equals("Completed") | tstatus.equals("InProgress"))
             {
-                listenToClick=true;
+
+                listenToClick=1;
             }
             //if its my task and its open,closed i want to see  "Not completed yet" - right
             if(tstatus.equals("Closed") | tstatus.equals("Open"))
@@ -213,15 +218,16 @@ public class ViewTask extends AppCompatActivity {
             if(tstatus.equals("Proposed"))
             {
                 //Add code for viewing proposers
+                listenToClick = 2;
+
             }
         }
-        //if its not my tasks and someone posted it - i want to see fullname of that user and should be able to click it too
         else
-        {
-            listenToClick=true;
+        {//if its not my tasks and someone posted it - i want to see fullname of that user and should be able to click it too
+            listenToClick=1;
         }
 
-        if(listenToClick)
+        if(listenToClick==1)
         {
             fullname.setText(nameToDisplay);
             fullname.setOnClickListener(new View.OnClickListener() {
@@ -232,6 +238,19 @@ public class ViewTask extends AppCompatActivity {
                     startActivity(i);
                 }
             });
+        }
+        else if(listenToClick==2)
+        {
+            fullname.setText("View Proposers");
+            fullname.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent viewProposers = new Intent(getApplicationContext(),ViewProposals.class);
+                    viewProposers.putExtra("TaskID",taskID);
+                    startActivity(viewProposers);
+                }
+            });
+
         }
 
 
@@ -244,6 +263,14 @@ public class ViewTask extends AppCompatActivity {
         {
             propose.setText("Delete Task");
             propose.setBackgroundResource(R.drawable.red);
+            propose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String status = "Deleted";
+                    String uname = session.getUserDetails().get("username");
+                    new ProposeTask().execute(id,status,uname);
+                }
+            });
         }
         else
         {
@@ -265,6 +292,14 @@ public class ViewTask extends AppCompatActivity {
             {
                 propose.setText("Cancel Proposal");
                 propose.setBackgroundResource(R.drawable.red);
+                propose.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String status="CancelProposal";
+                        String uname = session.getUserDetails().get("username");
+                        new ProposeTask().execute(id,status,uname);
+                    }
+                });
             }
 
         }
@@ -292,7 +327,7 @@ public class ViewTask extends AppCompatActivity {
 
             // Check your log cat for JSON reponse
             Log.d("All Tasks: ", json.toString());
-            Tasks viewTask = null;
+            Tasks eachTask = null;
             ArrayList<myDict> checklistList = new ArrayList<myDict>();
             try {
                 // Checking for SUCCESS TAG
@@ -310,13 +345,13 @@ public class ViewTask extends AppCompatActivity {
                         String id = c.getString("idTask");
                         String tag = c.getString("tag");
                         String descript = c.getString("description");
-                        String pstatus = c.getString("PaymentStatus");
-                        String ts = c.getString("tstatus");
+                        //String pstatus = c.getString("PaymentStatus");
+                        String taskStatus = c.getString("tstatus");
                         String clevel = c.getString("CriticalLevel");
                         String ucolor = c.getString("uColor");
-/*                        String pby = c.getString("PostedBy");
-                        String username = c.getString("Username");*/
-                        String vcnty = c.getString("Vicinity");
+                        String postedBy = c.getString("postedByUsername");
+                        //String username = c.getString("Username");
+                       // String vcnty = c.getString("Vicinity");
                         String uLevel = c.getString("UrgencyLevel");
 
 
@@ -333,7 +368,9 @@ public class ViewTask extends AppCompatActivity {
 
 
                         // adding HashList to ArrayList
-                        viewTask = new Tasks(tag,displayName,amnt,uLevel,clevel,ucolor,"10",id,descript,hiddenUser);
+                    eachTask = new Tasks(tag,displayName,amnt,uLevel,clevel,ucolor,"10",id,descript,hiddenUser);
+                    eachTask.setPostedByUser(postedBy);
+                    eachTask.setTaskStatus(taskStatus);
 
 
                     int checklist = json.getInt("checkItems");
@@ -359,24 +396,25 @@ public class ViewTask extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return (new Pair<Tasks,ArrayList<myDict>>(viewTask,checklistList));
+            return (new Pair<Tasks,ArrayList<myDict>>(eachTask,checklistList));
         }
 
         protected void onPostExecute(Pair<Tasks, ArrayList<myDict>> currentTask) {
             // dismiss the dialog after getting all products
 
-            display(currentTask);
+            if(currentTask.getFirst()!=null)
+                display(currentTask);
 
 
 
         }
     }
 
-    class ProposeTask extends AsyncTask<String,Void,Boolean>
+    class ProposeTask extends AsyncTask<String,Void,Integer>
     {
 
         @Override
-        protected Boolean doInBackground(String... args) {
+        protected Integer doInBackground(String... args) {
             JSONParser jParser = new JSONParser();
             String url_update_task = "update_task.php";
             List<myDict> params = new ArrayList<myDict>();
@@ -384,32 +422,58 @@ public class ViewTask extends AppCompatActivity {
             params.add(new myDict("Status",args[1]));   //Get task based on TaskID
             params.add(new myDict("Uname",args[2]));
             JSONObject json = jParser.makeHttpRequest(url_update_task, "POST", params);
-
+            String status = args[1];
             // Check your log cat for JSON reponse
             Log.d("Update Taks: ", json.toString());
-            Tasks viewTask = null;
+
             ArrayList<myDict> checklistList = new ArrayList<myDict>();
             try {
                 // Checking for SUCCESS TAG
                 int success = json.getInt("success");
                 if (success == 1)
                 {
-                    return Boolean.TRUE;
+                    if(status.equals("Deleted"))
+                    {
+                        return 1;
+                    }
+                    if(status.equals("Proposed"))
+                    {
+                        return 2;
+                    }
+                    if(status.equals("CancelProposal"))
+                    {
+                        return 3;
+                    }
+
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return Boolean.FALSE;
+            return 0;
         }
 
-        protected void onPostExecute(Boolean success) {
-            if(success)
+        protected void onPostExecute(Integer success) {
+            if(success==0)
+            {
+                Toast.makeText(getApplicationContext(), "Error! Something went wrong",Toast.LENGTH_SHORT).show();
+            }
+            else if(success==1)
+            {
+                Toast.makeText(getApplicationContext(), "Task deleted successfully.",Toast.LENGTH_SHORT).show();
+                finish();
+            }
+            else if(success==2)
             {
                 Button propose = (Button) findViewById(R.id.propose);
-                propose.setText("Cancel proposal");
-                propose.setEnabled(false);
+                propose.setVisibility(View.GONE);
                 Toast.makeText(getApplicationContext(), "Proposal sent.",Toast.LENGTH_SHORT).show();
+            }
+            else if(success==3)
+            {
+                Button propose = (Button) findViewById(R.id.propose);
+                propose.setVisibility(View.GONE);
+                Toast.makeText(getApplicationContext(), "Proposal canceled.",Toast.LENGTH_SHORT).show();
             }
 
         }

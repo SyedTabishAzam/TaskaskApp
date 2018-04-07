@@ -12,6 +12,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -106,8 +107,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.tabish.taskask.UserOptions" />
         </activity>
-        <activity android:name=".MyPostedTasks"></activity>
-        <activity android:name=".Sprint"></activity>
+        <activity android:name=".MyPostedTasks" />
+        <activity android:name=".Sprint" />
+        <activity android:name=".WelcomeUser" />
+        <activity
+            android:name=".FilterBox"
+            android:label="View Proposals">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.tabish.taskask.AllTasksActivity" />
+        </activity>
+        <activity android:name=".VicinityMap"></activity>
     </application>
 
 </manifest>
