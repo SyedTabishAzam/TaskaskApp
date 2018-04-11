@@ -6,7 +6,7 @@ package com.example.tabish.taskask;
 
 public class Tasks {
     private String tag_, user_,username_,fee_,urgency_,critical_,UrgencyColor_,CrticialColor_,time_,id_,desc_,accepteByName,acceptedByUser;
-    private String postedByname,postedByUser,TaskStatus;
+    private String postedByname,postedByUser,TaskStatus,amount;
     public Tasks()
     {
 
@@ -37,6 +37,14 @@ public class Tasks {
         time_ = time;
         desc_=desc;
         username_ = username;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
     }
 
     public String getPostedByname() {

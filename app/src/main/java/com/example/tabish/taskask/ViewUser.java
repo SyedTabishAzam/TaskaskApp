@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.RatingBar;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -46,12 +48,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ViewUser extends AppCompatActivity implements OnMapReadyCallback {
+public class ViewUser extends AppCompatActivity {
 
     JSONParser jsonParser = new JSONParser();
     private FusedLocationProviderApi mFusedLocationClient;
     Handler myHandle;
     boolean mapReady=false;
+    ScrollView mScrollView;
     GoogleMap m_map;
     Marker mark;
     boolean firstRef = true;
@@ -87,9 +90,30 @@ public class ViewUser extends AppCompatActivity implements OnMapReadyCallback {
 
         new LoadUser().execute(userName);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
+        if (m_map == null) {
+            SupportMapFragment spm = (WorkaroundMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            spm.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    mapReady = true;
+                    m_map = googleMap;
+                    m_map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    m_map.getUiSettings().setZoomControlsEnabled(true);
+                    mScrollView = (ScrollView) findViewById(R.id.outerScrollView); //parent scrollview in xml, give your scrollview id value
+
+                    ((WorkaroundMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                            .setListener(new WorkaroundMapFragment.OnTouchListener() {
+                                @Override
+                                public void onTouch() {
+                                    mScrollView.requestDisallowInterceptTouchEvent(true);
+                                }
+                            });
+                }
+            });
+
+
+        }
 
     }
 
@@ -115,13 +139,7 @@ public class ViewUser extends AppCompatActivity implements OnMapReadyCallback {
             new FetchLatLong().execute(userName);
         }
     }
-    @Override
-    public void onMapReady(GoogleMap map)
-    {
-        mapReady = true;
-        m_map= map;
 
-    }
 
     public void setupMap(Double latitude,Double longitude)
     {

@@ -28,7 +28,11 @@ public class SessionManager {
 
     private static final String IS_NEW = "IsNewUser";
 
-    private static final String IS_SPRINT = "IsInSprint";
+    public static final String IS_SPRINT = "IsInSprint";
+
+    public static final String IS_CUSTOMER = "IsCustomer";
+
+    public static final String IS_RUNNER = "IsRunner";
 
     // User name (make variable public to access from outside)
     public static final String KEY_FULLNAME = "fullname";
@@ -74,7 +78,7 @@ public class SessionManager {
         editor.commit();
     }
 
-    public void createSprintSession(String taskID, String userName){
+    public void createSprintSessionCustomer(String taskID, String userName){
 
         // Storing login value as TRUE
         editor.putBoolean(IS_SPRINT, true);
@@ -84,11 +88,25 @@ public class SessionManager {
 
         // Storing email in pref
         editor.putString(KEY_OTHERUSER, userName);
-
+        editor.putBoolean(IS_CUSTOMER,true);
+        editor.putBoolean(IS_RUNNER,false);
         // commit changes
         editor.commit();
         // After logout redirect user to Loing Activity
 
+
+
+    }
+
+    public void createSprintSessionRunner(){
+
+        // Storing login value as TRUE
+        editor.putBoolean(IS_SPRINT, true);
+        editor.putBoolean(IS_CUSTOMER,false);
+        editor.putBoolean(IS_RUNNER,true);
+        // commit changes
+        editor.commit();
+        // After logout redirect user to Loing Activity
 
 
     }
@@ -119,20 +137,31 @@ public class SessionManager {
 
     }
 
-    public void checkSprint(){
+    public void checkSprint()
+    {
         // Check login status
         if(this.isInSprint()){
             // user is is sprint - redirect him to Sprint Activity
+            if(isCustomerOrRunner().equals(IS_CUSTOMER))
+            {
 
-            Intent i = new Intent(_context, Sprint.class);
-            // Closing all the Activities
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            // Add new Flag to start new Activity
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Intent i = new Intent(_context, Sprint.class);
+                // Closing all the Activities
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-            // Staring Sprint Activity
-            _context.startActivity(i);
+                // Staring Sprint Activity
+                _context.startActivity(i);
+            }
+            else
+            {
+                Intent i = new Intent(_context, OnlySprint.class);
+                // Closing all the Activities
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                // Staring Sprint Activity
+                _context.startActivity(i);
+            }
         }
 
     }
@@ -186,10 +215,7 @@ public class SessionManager {
         // After logout redirect user to Loing Activity
         Intent i = new Intent(_context, MainScreenActivity.class);
         // Closing all the Activities
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        // Add new Flag to start new Activity
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         // Staring Login Activity
         _context.startActivity(i);
@@ -201,7 +227,8 @@ public class SessionManager {
 
         // Storing login value as TRUE
         editor.putBoolean(IS_SPRINT, false);
-
+        editor.putBoolean(IS_RUNNER, false);
+        editor.putBoolean(IS_CUSTOMER, false);
         // Storing name in pref
         editor.putString(KEY_TASKID, "");
 
@@ -228,6 +255,7 @@ public class SessionManager {
      * Quick check for login
      * **/
     // Get Login State
+    public String isCustomerOrRunner() {if(true== pref.getBoolean(IS_CUSTOMER,false)) return IS_CUSTOMER; return IS_RUNNER;}
     public boolean isLoggedIn(){
         return pref.getBoolean(IS_LOGIN, false);
     }

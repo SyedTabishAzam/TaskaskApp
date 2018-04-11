@@ -91,7 +91,7 @@ public class ProposalAdapter extends ArrayAdapter<UserDetail>  {
             @Override
             public void onClick(View v) {
 
-                session.createSprintSession(taskID,currentProposer.getUsername());
+                session.createSprintSessionCustomer(taskID,currentProposer.getUsername());
                 String status = "InProgress";
                 String proposer = currentProposer.getUsername();
                 Log.e("whoPropo",proposer);

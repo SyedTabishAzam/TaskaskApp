@@ -1,5 +1,5 @@
-
 package com.example.tabish.taskask;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -7,6 +7,8 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 import org.json.JSONArray;
@@ -51,7 +53,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tabish.taskask.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import static android.view.Gravity.START;
 
@@ -64,6 +69,7 @@ public class AllTasksActivity extends ListActivity {
     JSONParser jParser = new JSONParser();
     LocationManager mLocationManager;
     SQLiteDatabaseHandler db;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     // url to get all products list
     private static String url_all_products = "get_all_details.php";
@@ -81,13 +87,13 @@ public class AllTasksActivity extends ListActivity {
     private static final String TaskStatus = "tstatus";
     private static final String Vicinity = "Vicinity";
     private static final String UrgencyLevel = "UrgencyLevel";
-    private static final String PostedTime  = "PostedTime";
-    private static final String TimeLimit  = "TimeLimit";
+    private static final String PostedTime = "PostedTime";
+    private static final String TimeLimit = "TimeLimit";
     private static final String AcceptedTime = "AcceptedTime";
     private static final String CompletedTime = "CompletedTime";
-    private static final String Fee  = "Fee";
+    private static final String Fee = "Fee";
     private static final String Rate = "Rate";
-    private static final String Amount  = "Amount";
+    private static final String Amount = "Amount";
     private static final String AmountPaid = "AmountPaid";
     private static final String RatingCustomer = "RatingCustomer";
     private static final String RatingErrand = "RatingErrand";
@@ -100,24 +106,53 @@ public class AllTasksActivity extends ListActivity {
     Handler myHandle;
     Button createTask;
     Button filter;
-
+    private boolean isPaused = false;
     boolean re = true;
     Double globalRate;
     String startingLatitude;
     String startingLongitude;
     String mRadius;
+    String username;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_products);
+
+
         //getLoaderManager().initLoader(0,null,this);
         globalRate = 1.0;
         session = new SessionManager(getApplicationContext());
         //session.ClearAll();
+
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        try
+        {
+
+
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            Log.d("LocationNote",Double.toString(location.getLatitude()));
+                            Log.d("LocationNote",Double.toString(location.getLongitude()));
+                        }
+                    }
+                });
+        }
+        catch (SecurityException e)
+        {
+            Log.e("LocationERROR","noPermission");
+        }
+
         startingLatitude = "24.905294";
         startingLongitude = "67.138026";
-        session.checkLogin();
 
+        session.checkLogin();
         if(!session.isLoggedIn())
         {
 
@@ -128,14 +163,14 @@ public class AllTasksActivity extends ListActivity {
         session.checkSprint();
         if(session.isInSprint())
         {
-            this.finish();
+            //this.finish();
         }
 
         TextView usernamePlaceholder = (TextView) findViewById(R.id.usernamePlaceholder);
         usernamePlaceholder.setText(session.getUserDetails().get("username"));
 
         HashMap<String, String> user = session.getUserDetails();
-        String username = user.get(SessionManager.KEY_USERNAME);
+        username = user.get(SessionManager.KEY_USERNAME);
         myHandle = new Handler();
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         try
@@ -270,28 +305,68 @@ public class AllTasksActivity extends ListActivity {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
-                refreshContent();
+                Log.d("RunOnlyOnce", "NOW");
+                refreshTasks();
+
             }
         });
 
-
+        //Start refreshing as soon as app starts
+        if(re)
+            StartRefreshing();
 
     };
 
-
-    private void refreshContent(){
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                new LoadAllTasks().execute("default");
-
-                new InternetCheck().execute();
-                mSwipeRefreshLayout.setRefreshing(false);
-            };
-        },0);
+    @Override
+    protected void onDestroy() {
+        isPaused=true;
+        myHandle.removeCallbacksAndMessages(refreshContinuous);
+        super.onDestroy();
     }
 
+    @Override
+    protected void onResume()
+    {
+        isPaused = false;
+        super.onResume();
+    }
+
+    private void refreshTasks()
+    {
+        //Use refresh content to refresh the page only once
+
+        new LoadAllTasks().execute("default");
+
+
+
+
+    }
+
+    private void refreshInternet()
+    {
+        new InternetCheck().execute();
+    }
+
+    private void refreshSprint()
+    {
+        new SprintCheck().execute(username);
+    }
+    private void StartRefreshing()
+    {
+        //Handle is used to provide handle for multiple commands and execute them after a while
+        myHandle.postDelayed(refreshContinuous,1000);
+    }
+
+    Runnable refreshContinuous = new Runnable() {
+        @Override
+        public void run() {
+            Log.d("RefreshingPeriodically", "NOW");
+            refreshTasks();
+            refreshInternet();
+            refreshSprint();
+
+        }
+    };
 
 
     private void displayTasks(ArrayList<Tasks> tasklist)
@@ -325,7 +400,7 @@ public class AllTasksActivity extends ListActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if ((requestCode == 3) || (requestCode == 4)) {
-            refreshContent();
+            refreshTasks();
         }
 
         if (requestCode == 1) {
@@ -437,7 +512,7 @@ public class AllTasksActivity extends ListActivity {
             // dismiss the dialog after getting all products
 //            pDialog.dismiss();
             displayTasks(tasklist);
-
+            mSwipeRefreshLayout.setRefreshing(false);
 
 
 
@@ -496,6 +571,55 @@ public class AllTasksActivity extends ListActivity {
         }
     }
 
+    class SprintCheck extends AsyncTask<String,Void,Boolean> {
+
+
+
+
+        @Override protected Boolean doInBackground(String... args) {
+            String urlx = "check_sprint.php";
+            List<myDict> params = new ArrayList<myDict>();
+            params.add(new myDict("Username",args[0]));
+            JSONObject jobj = jParser.makeHttpRequest(urlx,"GET",params);
+            int success = 0;
+            try
+            {
+
+                success = jobj.getInt("success");
+            }
+            catch (JSONException e)
+            {
+                Log.e("SprintCheck",e.toString());
+            }
+
+            if(success==1)
+            {
+                return Boolean.TRUE;
+            }
+
+            return Boolean.FALSE;
+        }
+
+        @Override protected void onPostExecute(Boolean inSprint)
+        {
+            if(inSprint==Boolean.TRUE)
+            {
+
+                session.createSprintSessionRunner();
+                session.checkSprint();
+
+            }
+            else
+            {
+                if(!isPaused)
+                {
+                    myHandle.postDelayed(refreshContinuous,1000);
+                }
+                Log.d("Sprint Check","Not in sprint!");
+            }
+        }
+    }
+
      class InternetCheck extends AsyncTask<Void,Void,Boolean> {
 
 
@@ -521,6 +645,8 @@ public class AllTasksActivity extends ListActivity {
             }
         }
     }
+
+
 
     void AddTaskFromDatabase()
     {
@@ -651,7 +777,7 @@ public class AllTasksActivity extends ListActivity {
 
                     db.addTask(saveTask);
                     successful = 4;
-                    finish();
+
 
                 }
                 else {

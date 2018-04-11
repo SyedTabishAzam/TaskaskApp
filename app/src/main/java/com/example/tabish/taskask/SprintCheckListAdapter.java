@@ -57,11 +57,32 @@ public class SprintCheckListAdapter extends ArrayAdapter<CheckListForSprint> {
         type.setText(currentChecklist.getName());
 
         TextView desc = (TextView) listItemView.findViewById(R.id.checkdesc);
+
+        if(type.getText().equals("Go"))
+        {
+            final String latLon = currentChecklist.getValue();
+            desc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    final String lat = latLon.split(",")[0];
+                    final String lon = latLon.split(",")[1];
+                    Intent viewIn = new Intent(mContext,ViewCheckMap.class);
+                    viewIn.putExtra("Latitude",lat);
+                    viewIn.putExtra("Longitude",lon);
+                    mContext.startActivity(viewIn);
+                }
+            });
+
+        }
         desc.setText(currentChecklist.getValue());
+
 
         CheckBox numb = (CheckBox) listItemView.findViewById(R.id.checklistNo);
         numb.setText(Integer.toString(position+1));
 
+
+        //If it is my task, then I want the checkboxes greyed out
         if(myTask)
         {
             numb.setClickable(false);

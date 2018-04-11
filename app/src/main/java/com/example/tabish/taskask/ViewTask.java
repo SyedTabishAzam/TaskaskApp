@@ -427,9 +427,11 @@ public class ViewTask extends AppCompatActivity {
             Log.d("Update Taks: ", json.toString());
 
             ArrayList<myDict> checklistList = new ArrayList<myDict>();
+            int success;
+            success = 0;
             try {
                 // Checking for SUCCESS TAG
-                int success = json.getInt("success");
+                success = json.getInt("success");
                 if (success == 1)
                 {
                     if(status.equals("Deleted"))
@@ -446,11 +448,12 @@ public class ViewTask extends AppCompatActivity {
                     }
 
                 }
+                return success;
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return 0;
+            return success;
         }
 
         protected void onPostExecute(Integer success) {
@@ -474,6 +477,10 @@ public class ViewTask extends AppCompatActivity {
                 Button propose = (Button) findViewById(R.id.propose);
                 propose.setVisibility(View.GONE);
                 Toast.makeText(getApplicationContext(), "Proposal canceled.",Toast.LENGTH_SHORT).show();
+            }
+            else if(success==4)
+            {
+                Toast.makeText(getApplicationContext(), "Please clear your previous dues first",Toast.LENGTH_SHORT).show();
             }
 
         }

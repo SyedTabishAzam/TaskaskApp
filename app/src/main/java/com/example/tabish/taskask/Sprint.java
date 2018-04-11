@@ -29,6 +29,10 @@ public class Sprint extends Activity {
     String taskID;
     String myUsername;
     String nature;
+    String otherUser;
+    String amount;
+    String displayName;
+    boolean isActive;
     boolean refreshView,firstTime;
     JSONParser jsonParser;
     boolean taskDetailsAltered;
@@ -40,17 +44,28 @@ public class Sprint extends Activity {
         setContentView(R.layout.activity_sprint);
         taskDetailsAltered = false;
         refreshView = false;
+        isActive = true;
         firstTime = true;
         session = new SessionManager(getApplicationContext());
         myHandle = new Handler();
-        taskID = session.getSprintDetail().get("taskID");
         myUsername = session.getUserDetails().get("username");
-        nature = "SprintAsCustomer";
+        if(session.isCustomerOrRunner().equals(session.IS_CUSTOMER))
+        {
+            taskID = session.getSprintDetail().get("taskID");
+            nature = "SprintAsCustomer";
+        }
+        else
+        {
+            taskID = getIntent().getStringExtra("TaskID");
+            nature = "SprintAsRunner";
+        }
+
+        new SprintData().execute(taskID,myUsername,nature);
+
         sprintFinish = findViewById(R.id.sprintFinish);
         sprintCancel = findViewById(R.id.sprintCancel);
 
-        String taskStatus = "InProgress";
-        new SprintData().execute(taskID,myUsername,nature);
+
 
 
 
@@ -67,24 +82,73 @@ public class Sprint extends Activity {
             }
         });
 
-        Toast.makeText(this,taskID, Toast.LENGTH_SHORT).show();
+        StartLocalRefresh();
 
+    }
+
+    @Override
+    protected void onResume()
+    {
+        isActive = true;
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        isActive = false;
+        super.onPause();
+    }
+
+    void StartLocalRefresh()
+    {
+        Log.d("Sprint","InCustomerSprint");
+        myHandle.postDelayed(updateSprintData,3000);
+    }
+
+    Runnable updateSprintData = new Runnable()
+    {
+        @Override
+        public void run() {
+            refreshSprintData();
+            if(isActive)
+            {
+                StartLocalRefresh();
+            }
+        }
+    };
+
+    void refreshSprintData()
+    {
+        new SprintData().execute(taskID,myUsername,nature);
     }
 
     void CompleteSprint()
     {
 
         Intent i = new Intent(getApplicationContext(),TaskComplete.class);
-        i.putExtra("DisplayName",session.getSprintDetail().get("otherUserId"));
-        session.endSprint();
+        i.putExtra("DisplayName",displayName);
+        i.putExtra("TaskID",taskID);
+        i.putExtra("OtherUser",otherUser);
+        i.putExtra("nature",nature);
+        i.putExtra("amount",amount);
+        i.putExtra("action","Completed");
+        //session.endSprint();
         startActivity(i);
         finish();
     }
 
     void CancelSprint()
     {
-        session.endSprint();
+
         Intent i = new Intent(getApplicationContext(),TaskComplete.class);
+        i.putExtra("DisplayName",displayName);
+        i.putExtra("TaskID",taskID);
+        i.putExtra("OtherUser",otherUser);
+        i.putExtra("nature",nature);
+        i.putExtra("amount",amount);
+        i.putExtra("action","Canceled");
+        //session.endSprint();
         startActivity(i);
         finish();
     }
@@ -92,8 +156,8 @@ public class Sprint extends Activity {
     @Override
     public void onDestroy()
     {
+        myHandle.removeCallbacks(updateSprintData);
         super.onDestroy();
-        refresh(false);
     }
 
     class SprintData extends AsyncTask<String,Void,Pair<Tasks, ArrayList<CheckListForSprint>>>
@@ -149,12 +213,11 @@ public class Sprint extends Activity {
                     String descript = c.getString("description");
                     String clevel = c.getString("CriticalLevel");
                     String ucolor = c.getString("uColor");
-                    String vcnty = c.getString("Vicinity");
                     String uLevel = c.getString("UrgencyLevel");
                     String displayName = c.getString("displayName");
                     String hiddenUser = c.getString("displayUser");
                     String amnt  = c.getString("Amount");
-
+                    String taskOwner  = c.getString("postedByUsername");
 
 
 
@@ -164,7 +227,7 @@ public class Sprint extends Activity {
 
                     // adding HashList to ArrayList
                     viewTask = new Tasks(tag,displayName,amnt,uLevel,clevel,ucolor,"10",id,descript,hiddenUser);
-
+                    viewTask.setPostedByUser(taskOwner);
 
                     int checklist = json.getInt("checkItems");
                     if(checklist == 1)
@@ -199,7 +262,7 @@ public class Sprint extends Activity {
 
 
                     }
-                    return (new Pair<Tasks,ArrayList<CheckListForSprint>>(viewTask,checklistList));
+                    return (new Pair<>(viewTask,checklistList));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -213,7 +276,7 @@ public class Sprint extends Activity {
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
             if(currentTask!=null)
             {
-
+                Log.d("Sprint","RegisteringX");
                 display(currentTask);
             }
             else
@@ -229,15 +292,18 @@ public class Sprint extends Activity {
     //TODO:ChangeHere2
     private void display(Pair<Tasks, ArrayList<CheckListForSprint>> pair)
     {
-        final Tasks currentTask = pair.getFirst();
 
+        final Tasks currentTask = pair.getFirst();
+        displayName = currentTask.getUser();
+        otherUser = currentTask.getUsername();
+        amount = currentTask.getFee();
         TextView desc = (TextView) findViewById(R.id.desc);
         TextView fullname = (TextView) findViewById(R.id.fullname);
 
-        String username = currentTask.getUsername();
 
-        boolean myTask = username.equals(myUsername);
-        Log.e(username,myUsername);
+        String ownerOfTask = currentTask.getPostedByUser();
+        boolean myTask = ownerOfTask.equals(myUsername);
+
 
         desc.setText(currentTask.getDesc());
 
@@ -245,26 +311,33 @@ public class Sprint extends Activity {
         {
             //if it is my task, display user who accepted it
             //Make accept button change the task status
-
+            Log.d(ownerOfTask,"ITS not MY TASK");
             refreshView = false;
         }
         else
         {
-
+            Log.d(ownerOfTask,"ITS MY TASK");
             refreshView = true;
         }
         fullname.setText(currentTask.getUser());
+        fullname.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent viewUser = new Intent(getApplicationContext(),ViewUser.class);
+            viewUser.putExtra("UserName",otherUser);
+            startActivity(viewUser);
+        }
+    });
 
 
-//TODO:ChangeHere1
         ArrayList<CheckListForSprint> checkList = pair.getSecond();
-        /*if(checkList.size()>0)
-        {*/
         ListView listview = (ListView) findViewById(R.id.createChecklist);
         SprintCheckListAdapter sprintCheckListAdapter = new SprintCheckListAdapter(this,checkList,myTask);
         listview.setAdapter(sprintCheckListAdapter);
 
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        //Check if this works with customers Too
+        /*listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
@@ -284,12 +357,12 @@ public class Sprint extends Activity {
                 }
 
             }
-        });
+        });*/
         setListViewHeightBasedOnChildren(listview);
 
         if(firstTime)
         {
-            refresh(refreshView);
+            //refresh(refreshView);
             firstTime = false;
         }
     }
@@ -315,23 +388,7 @@ public class Sprint extends Activity {
         listView.setLayoutParams(params);
     }
 
-    void refresh(boolean b){
-        Log.e("Refresh",Boolean.toString(b));
-        if(b){
-            myHandle.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    new SprintData().execute(taskID,myUsername,nature);
-                    refresh(refreshView);
-                }
-            }, 1*1000);
-        }
-        else
-        {
-            myHandle.removeCallbacksAndMessages(null);
-            new SprintData().execute(taskID,myUsername,nature);
-        }
-    }
+
 
 
 }
